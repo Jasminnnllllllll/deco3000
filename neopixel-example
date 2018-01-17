@@ -1,0 +1,74 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <neopixel.h>
+
+#define PIXEL_PIN D2
+#define PIXEL_COUNT 3
+#define PIXEL_TYPE WS2812B
+
+//type_of_variable variable
+Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
+
+//colours   variable with 3 integers (8bytes long)
+uint32_t red = strip.Color(255, 0, 0);
+uint32_t green = strip.Color(0, 255, 0);
+uint32_t blue = strip.Color(0, 0, 255);
+uint32_t purple = strip.Color(126, 0, 208);
+uint32_t yellow = strip.Color(255, 215, 0);
+uint32_t cyan = strip.Color(64, 224, 208);
+
+//LDR light reader
+int ldrPin = A0;
+int ldrReading = 0;
+int darkThreshold = 150;
+int brightThreshold = 1000;
+
+//timing
+const long readingInterval = 10000;
+unsigned long previousMillis = 0;
+
+
+void setup() 
+{
+    strip.begin();
+    strip.show();
+}
+
+void loop() 
+{
+    unsigned long currentMillis = millis();
+    
+    if(currentMillis - previousMillis > readingInterval)
+    {
+        previousMillis = currentMillis;
+        
+        ldrReading = analogRead(ldrPin);
+        // Particle.publish("ldr reading", String(ldrReading));
+        
+        if(ldrReading < darkThreshold)
+        {
+            setStripColour(cyan);
+            Particle.publish("it's dark", String(ldrReading));
+        }
+        
+        else if(ldrReading > brightThreshold)
+        {
+            setStripColour(yellow);
+            Particle.publish("it's bright", String(ldrReading));    
+        }
+        
+        else
+        {
+            setStripColour(purple);
+            Particle.publish("cool", String(ldrReading));        
+        }
+    }
+}
+
+void setStripColour(uint32_t colour)
+{
+    for (int i = 0; i < PIXEL_COUNT; i++)
+    {
+        strip.setPixelColor(i, colour);
+    }
+    strip.show();
+}
