@@ -20,21 +20,56 @@ uint32_t cyan = strip.Color(64, 224, 208);
 int ldrPin = A0;
 int ldrReading = 0;
 int darkThreshold = 150;
-int brightThreshold = 1000;
+int brightThreshold = 800;
 
 //timing
 const long readingInterval = 10000;
 unsigned long previousMillis = 0;
 
+// servo
+int servoPin = D0;
+Servo wormServo;
+int servoPos = 0;
+
+int pingPin = D5;
 
 void setup() 
 {
     strip.begin();
     strip.show();
+    
+    //servo
+    wormServo.attach(D0);
+    wormServo.write(0);
+    
+    //sensor
+    Serial.begin(9600);
+    
 }
 
 void loop() 
 {
+    //ping distance sensor
+    long duration, cm;
+    
+    pinMode(pingPin, OUTPUT);
+    digitalWrite(pingPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(pingPin, HIGH);
+    delayMicroseconds(5);
+    digitalWrite(pingPin, LOW);
+    
+    pinMode(pingPin, INPUT);
+    duration = pulseIn(pingPin, HIGH);
+    
+    cm = microsecondsToCentimeters(duration);
+    Serial.print(cm);
+    Serial.print("cm");
+    Serial.println();
+    
+    delay(100);
+    
+    //ldr reading  
     unsigned long currentMillis = millis();
     
     if(currentMillis - previousMillis > readingInterval)
@@ -48,18 +83,26 @@ void loop()
         {
             setStripColour(cyan);
             Particle.publish("it's dark", String(ldrReading));
+            
+            wormServo.write(0);
+            delay(1000);
         }
         
         else if(ldrReading > brightThreshold)
         {
             setStripColour(yellow);
-            Particle.publish("it's bright", String(ldrReading));    
+            Particle.publish("it's bright", String(ldrReading));
+            
+            wormServo.write(180);
+            delay(1000);
         }
         
         else
         {
             setStripColour(purple);
-            Particle.publish("cool", String(ldrReading));        
+            Particle.publish("cool", String(ldrReading));   
+            
+            wormServo.write(0);
         }
     }
 }
@@ -71,4 +114,9 @@ void setStripColour(uint32_t colour)
         strip.setPixelColor(i, colour);
     }
     strip.show();
+}
+
+long microsecondsToCentimeters(long microseconds) 
+{
+    return microseconds / 29 / 2;
 }
