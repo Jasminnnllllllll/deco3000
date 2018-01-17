@@ -16,11 +16,17 @@ uint32_t purple = strip.Color(126, 0, 208);
 uint32_t yellow = strip.Color(255, 215, 0);
 uint32_t cyan = strip.Color(64, 224, 208);
 
-//LDR light reader
-int ldrPin = A0;
-int ldrReading = 0;
-int darkThreshold = 150;
-int brightThreshold = 800;
+// //LDR light reader
+// int ldrPin = A0;
+// int ldrReading = 0;
+// int darkThreshold = 150;
+// int brightThreshold = 800;
+
+//ping sensor
+int pingPin = D5;
+int pingReading = 0;
+int closeThreshold = 10;
+int farThreshold = 40;
 
 //timing
 const long readingInterval = 10000;
@@ -30,8 +36,6 @@ unsigned long previousMillis = 0;
 int servoPin = D0;
 Servo wormServo;
 int servoPos = 0;
-
-int pingPin = D5;
 
 void setup() 
 {
@@ -49,62 +53,93 @@ void setup()
 
 void loop() 
 {
-    //ping distance sensor
-    long duration, cm;
-    
-    pinMode(pingPin, OUTPUT);
-    digitalWrite(pingPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(pingPin, HIGH);
-    delayMicroseconds(5);
-    digitalWrite(pingPin, LOW);
-    
-    pinMode(pingPin, INPUT);
-    duration = pulseIn(pingPin, HIGH);
-    
-    cm = microsecondsToCentimeters(duration);
-    Serial.print(cm);
-    Serial.print("cm");
-    Serial.println();
-    
-    delay(100);
-    
-    //ldr reading  
     unsigned long currentMillis = millis();
     
     if(currentMillis - previousMillis > readingInterval)
     {
         previousMillis = currentMillis;
+   
+        //ping distance sensor
+        long duration, cm;
         
-        ldrReading = analogRead(ldrPin);
-        // Particle.publish("ldr reading", String(ldrReading));
+        pinMode(pingPin, OUTPUT);
+        digitalWrite(pingPin, LOW);
+        delayMicroseconds(2);
+        digitalWrite(pingPin, HIGH);
+        delayMicroseconds(5);
+        digitalWrite(pingPin, LOW);
         
-        if(ldrReading < darkThreshold)
+        pinMode(pingPin, INPUT);
+        duration = pulseIn(pingPin, HIGH);
+    
+        cm = microsecondsToCentimeters(duration);
+        
+        Serial.print(cm);
+        Serial.print("cm");
+        Serial.println();
+    
+        delay(100);
+        
+        if(cm < closeThreshold)
         {
             setStripColour(cyan);
-            Particle.publish("it's dark", String(ldrReading));
-            
+            Particle.publish("it's close", String(pingReading));
+                
             wormServo.write(0);
-            delay(1000);
+            delay(1000);  
         }
-        
-        else if(ldrReading > brightThreshold)
+        else if(cm > farThreshold)
         {
             setStripColour(yellow);
-            Particle.publish("it's bright", String(ldrReading));
-            
+            Particle.publish("it's far", String(pingReading));
+                
             wormServo.write(180);
             delay(1000);
         }
-        
-        else
-        {
-            setStripColour(purple);
-            Particle.publish("cool", String(ldrReading));   
-            
-            wormServo.write(0);
-        }
+        // else{
+        //     setStripColour(purple);
+        //     Particle.publish("all good", String(pingReading));   
+                
+        //     wormServo.write(0);
+        // }
     }
+    
+    // //ldr reading  
+    // unsigned long currentMillis = millis();
+    
+    // if(currentMillis - previousMillis > readingInterval)
+    // {
+    //     previousMillis = currentMillis;
+        
+    //     ldrReading = analogRead(ldrPin);
+    //     // Particle.publish("ldr reading", String(ldrReading));
+        
+    //     if(ldrReading < darkThreshold)
+    //     {
+    //         setStripColour(cyan);
+    //         Particle.publish("it's dark", String(ldrReading));
+            
+    //         wormServo.write(0);
+    //         delay(1000);
+    //     }
+        
+    //     else if(ldrReading > brightThreshold)
+    //     {
+    //         setStripColour(yellow);
+    //         Particle.publish("it's bright", String(ldrReading));
+            
+    //         wormServo.write(180);
+    //         delay(1000);
+    //     }
+        
+    //     else
+    //     {
+    //         setStripColour(purple);
+    //         Particle.publish("cool", String(ldrReading));   
+            
+    //         wormServo.write(0);
+    //     }
+    // }
 }
 
 void setStripColour(uint32_t colour)
