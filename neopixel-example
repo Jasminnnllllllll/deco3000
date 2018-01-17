@@ -1,6 +1,10 @@
 // This #include statement was automatically added by the Particle IDE.
 #include <neopixel.h>
 
+// This #include statement was automatically added by the Particle IDE.
+
+
+
 #define PIXEL_PIN D2
 #define PIXEL_COUNT 3
 #define PIXEL_TYPE WS2812B
@@ -17,10 +21,10 @@ uint32_t yellow = strip.Color(255, 215, 0);
 uint32_t cyan = strip.Color(64, 224, 208);
 
 //LDR light reader
-int ldrPin = A0;
-int ldrReading = 0;
-int darkThreshold = 150;
-int brightThreshold = 800;
+int ulPin = D5;
+int ulReading = 0;
+int darkThreshold = 30;
+int brightThreshold = 60;
 
 //timing
 const long readingInterval = 10000;
@@ -76,22 +80,22 @@ void loop()
     {
         previousMillis = currentMillis;
         
-        ldrReading = analogRead(ldrPin);
-        // Particle.publish("ldr reading", String(ldrReading));
+        ulReading = analogRead(ulPin);
+        // Particle.publish("ul reading", String(ulReading));
         
-        if(ldrReading < darkThreshold)
+        if(ulReading < darkThreshold)
         {
             setStripColour(cyan);
-            Particle.publish("it's dark", String(ldrReading));
+            Particle.publish("it's dark", String(ulReading));
             
             wormServo.write(0);
             delay(1000);
         }
         
-        else if(ldrReading > brightThreshold)
+        else if(ulReading > brightThreshold)
         {
             setStripColour(yellow);
-            Particle.publish("it's bright", String(ldrReading));
+            Particle.publish("it's bright", String(ulReading));
             
             wormServo.write(180);
             delay(1000);
@@ -100,7 +104,7 @@ void loop()
         else
         {
             setStripColour(purple);
-            Particle.publish("cool", String(ldrReading));   
+            Particle.publish("cool", String(ulReading));   
             
             wormServo.write(0);
         }
