@@ -1,12 +1,20 @@
 // This #include statement was automatically added by the Particle IDE.
+#include <Adafruit_DHT.h>
+
+// This #include statement was automatically added by the Particle IDE.
 #include <neopixel.h>
 
 #define PIXEL_PIN D2
 #define PIXEL_COUNT 3
 #define PIXEL_TYPE WS2812B
+#define DHTTYPE DHT22
+#define DHTPIN D7
 
-//type_of_variable variable
+//NEOPIXEL --- type_of_variable variable
 Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
+
+//TEMP SENSOR
+DHT dht(DHTPIN, DHTTYPE);
 
 //colours   variable with 3 integers (8bytes long)
 uint32_t red = strip.Color(255, 0, 0);
@@ -47,8 +55,12 @@ void setup()
     wormServo.write(0);
     
     //sensor
-    Serial.begin(9600);
+    //Serial.begin(9600);
     
+    //temp sensor
+    Serial.begin(9600); 
+	
+    dht.begin();
 }
 
 void loop() 
@@ -58,6 +70,13 @@ void loop()
     if(currentMillis - previousMillis > readingInterval)
     {
         previousMillis = currentMillis;
+        
+        //temp sensor
+        float h = dht.getHumidity();
+    	float t = dht.getTempCelcius();
+    	
+    	Serial.println(h);
+    	Serial.println(t);
    
         //ping distance sensor
         long duration, cm;
@@ -82,7 +101,7 @@ void loop()
         
         if(cm < closeThreshold)
         {
-            setStripColour(cyan);
+            setStripColour(red);
             Particle.publish("it's close", String(pingReading));
                 
             wormServo.write(0);
@@ -90,7 +109,7 @@ void loop()
         }
         else if(cm > farThreshold)
         {
-            setStripColour(yellow);
+            setStripColour(cyan);
             Particle.publish("it's far", String(pingReading));
                 
             wormServo.write(180);
