@@ -11,8 +11,9 @@ String readingType;
 
 uint32_t red = strip.Color(255, 0, 0);
 uint32_t green = strip.Color(0, 255, 0);
-uint32_t orange = strip.Color(255,165,0);
-
+uint32_t orange = strip.Color(255, 140,0);
+uint32_t blue = strip.Color(0, 0, 255);
+uint32_t off = strip.Color(0, 0, 0);
 
 void setup() {
     // Subscribe to the integration response event
@@ -43,11 +44,19 @@ void loop() {
 void myHandler(const char *event, const char *data) 
 {
     String reading_string = String(data);
+    Particle.publish("data in", reading_string);
     Serial.println(reading_string);
     
     if (readingType == "WFarm_Temperature")
     {
         float WFarm_Temperature = reading_string.toFloat();
+        
+        for(int i = 0; i > 5; i++)
+        {
+            strip.setPixelColor(i, off);
+        }
+        
+        strip.show();
     
         if (WFarm_Temperature < 12.5)
         {
@@ -69,11 +78,11 @@ void myHandler(const char *event, const char *data)
         }
         else if (WFarm_Temperature > 22.5 && WFarm_Temperature < 27.5)
         {
-            strip.setPixelColor(0, orange);
-            strip.setPixelColor(1, orange);
-            strip.setPixelColor(2, orange);
-            strip.setPixelColor(3, orange);
-            Particle.publish("WFarm_Temperature", "green");
+            strip.setPixelColor(0, blue);
+            strip.setPixelColor(1, blue);
+            strip.setPixelColor(2, blue);
+            strip.setPixelColor(3, blue);
+            Particle.publish("WFarm_Temperature", "orange");
         }
         else 
         {
@@ -85,6 +94,9 @@ void myHandler(const char *event, const char *data)
             Particle.publish("WFarm_Temperature", "red");
         }
     }
+   
+    strip.show();
+    
     // else if (readingType == "WFarm_Humidity")
     // {
     //     float humidity = reading_string.toFloat();
