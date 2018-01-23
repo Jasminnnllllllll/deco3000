@@ -23,6 +23,7 @@ uint32_t blue = strip.Color(0, 0, 255);
 uint32_t purple = strip.Color(126, 0, 208);
 uint32_t yellow = strip.Color(255, 215, 0);
 uint32_t cyan = strip.Color(64, 224, 208);
+uint32_t orange = strip.Color(255,165,0);
 
 // //LDR light reader
 // int ldrPin = A0;
@@ -47,6 +48,8 @@ int servoPos = 0;
 
 void setup() 
 {
+    Time.zone(+10);
+    
     strip.begin();
     strip.show();
     
@@ -55,7 +58,7 @@ void setup()
     wormServo.write(0);
     
     //sensor
-    //Serial.begin(9600);
+    // Serial.begin(9600);
     
     //temp sensor
     Serial.begin(9600); 
@@ -98,6 +101,10 @@ void loop()
         Serial.println();
     
         delay(100);
+        
+        sendDataToCCDB(String(t), "float", "WFarm_Temperature");
+    	sendDataToCCDB(String(h), "float", "WFarm_Humidity");
+    	sendDataToCCDB(String(cm), "int", "WFarm_Waste_Capacity");
         
         if(cm < closeThreshold)
         {
@@ -173,4 +180,12 @@ void setStripColour(uint32_t colour)
 long microsecondsToCentimeters(long microseconds) 
 {
     return microseconds / 29 / 2;
+}
+
+void sendDataToCCDB(String readingvalue, String readingdatatype, String readingvaluedescription)
+{
+    String dataToSend = "{\"readingvalue\":\"" + readingvalue + "\", \"readingdatatype\":\"" + readingdatatype + "\", \"readingvaluedescription\":\"" + readingvaluedescription + "\", \"readingdate\":\"" + String(Time.now()) + "\", \"readingtime\":\"" + String(Time.now()) + "\", \"readinghour\":\"" + String(Time.hour()) + "\"}";
+    Particle.publish("data_test", dataToSend);
+    Serial.println(dataToSend);
+    delay(1000);
 }
