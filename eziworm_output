@@ -1,0 +1,106 @@
+// This #include statement was automatically added by the Particle IDE.
+#include <neopixel.h>
+
+#define PIXEL_PIN D2
+#define PIXEL_COUNT 5
+#define PIXEL_TYPE WS2812B
+
+Adafruit_NeoPixel strip(PIXEL_COUNT, PIXEL_PIN, PIXEL_TYPE);
+
+String readingType;
+
+uint32_t red = strip.Color(255, 0, 0);
+uint32_t green = strip.Color(0, 255, 0);
+uint32_t orange = strip.Color(255,165,0);
+
+
+void setup() {
+    // Subscribe to the integration response event
+    Particle.subscribe("hook-response/get_most_recent_value", myHandler, MY_DEVICES);
+    
+    strip.begin();
+    strip.show();
+
+    Serial.begin(9600);
+}
+
+void loop() {
+    Serial.println("get temp");
+    readingType = "WFarm_Temperature";
+    Particle.publish("get_most_recent_value", readingType);
+    delay(60000);
+    Serial.println("get humidity");
+    readingType = "WFarm_Humidity";
+    Particle.publish("get_most_recent_value", readingType);
+    delay(60000);
+    Serial.println("get capacity");
+    readingType = "WFarm_Waste_Capacity";
+    Particle.publish("get_most_recent_value", readingType);
+    delay(60000);
+
+}
+
+void myHandler(const char *event, const char *data) 
+{
+    String reading_string = String(data);
+    Serial.println(reading_string);
+    
+    if (readingType == "WFarm_Temperature")
+    {
+        float WFarm_Temperature = reading_string.toFloat();
+    
+        if (WFarm_Temperature < 12.5)
+        {
+            strip.setPixelColor(0, red);
+            Particle.publish("WFarm_Temperature", "red");
+        }
+        else if (WFarm_Temperature > 12.5 && WFarm_Temperature < 17.5)
+        {
+            strip.setPixelColor(0, orange);
+            strip.setPixelColor(1, orange);
+            Particle.publish("WFarm_Temperature", "orange");
+        }
+        else if (WFarm_Temperature > 17.5 && WFarm_Temperature < 22.5)
+        {
+            strip.setPixelColor(0, green);
+            strip.setPixelColor(1, green);
+            strip.setPixelColor(2, green);
+            Particle.publish("WFarm_Temperature", "green");
+        }
+        else if (WFarm_Temperature > 22.5 && WFarm_Temperature < 27.5)
+        {
+            strip.setPixelColor(0, orange);
+            strip.setPixelColor(1, orange);
+            strip.setPixelColor(2, orange);
+            strip.setPixelColor(3, orange);
+            Particle.publish("WFarm_Temperature", "green");
+        }
+        else 
+        {
+            strip.setPixelColor(0, red);
+            strip.setPixelColor(1, red);
+            strip.setPixelColor(2, red);
+            strip.setPixelColor(3, red);
+            strip.setPixelColor(4, red);
+            Particle.publish("WFarm_Temperature", "red");
+        }
+    }
+    // else if (readingType == "WFarm_Humidity")
+    // {
+    //     float humidity = reading_string.toFloat();
+    
+    //     if (WFarm_Humidity > 60.0)
+    //     {
+    //         Particle.publish("WFarm_Humidity", "really humid");
+    //     }
+    //     else if (WFarm_Humidity > 50.0 )
+    //     {
+    //         Particle.publish("WFarm_Humidity", "pretty humid");
+    //     }
+    //     else
+    //     {
+    //         Particle.publish("WFarm_Humidity", "comfortable");
+    //     }
+    // }
+    
+}
