@@ -58,33 +58,7 @@ void myHandler(const char *event, const char *data)
         
         strip.show();
     
-        if (WFarm_Temperature < 12.5)
-        {
-            strip.setPixelColor(0, red);
-            Particle.publish("WFarm_Temperature", "red");
-        }
-        else if (WFarm_Temperature > 12.5 && WFarm_Temperature < 17.5)
-        {
-            strip.setPixelColor(0, orange);
-            strip.setPixelColor(1, orange);
-            Particle.publish("WFarm_Temperature", "orange");
-        }
-        else if (WFarm_Temperature > 17.5 && WFarm_Temperature < 22.5)
-        {
-            strip.setPixelColor(0, green);
-            strip.setPixelColor(1, green);
-            strip.setPixelColor(2, green);
-            Particle.publish("WFarm_Temperature", "green");
-        }
-        else if (WFarm_Temperature > 22.5 && WFarm_Temperature < 27.5)
-        {
-            strip.setPixelColor(0, blue);
-            strip.setPixelColor(1, blue);
-            strip.setPixelColor(2, blue);
-            strip.setPixelColor(3, blue);
-            Particle.publish("WFarm_Temperature", "orange");
-        }
-        else 
+        if (WFarm_Temperature <1.7 && WFarm_Temperature =1.7 )
         {
             strip.setPixelColor(0, red);
             strip.setPixelColor(1, red);
@@ -92,6 +66,32 @@ void myHandler(const char *event, const char *data)
             strip.setPixelColor(3, red);
             strip.setPixelColor(4, red);
             Particle.publish("WFarm_Temperature", "red");
+        }
+        else if (WFarm_Temperature > 1.7 && WFarm_Temperature < 3.4 && WFarm_Temperature = 3.4)
+        {
+            strip.setPixelColor(0, green);
+            strip.setPixelColor(1, green);
+            strip.setPixelColor(2, green);
+            strip.setPixelColor(3, green);
+            Particle.publish("WFarm_Temperature", "green");
+        }
+        else if (WFarm_Temperature > 3.4 && WFarm_Temperature < 5.1 && WFarm_Temperature = 5.1)
+        {
+            strip.setPixelColor(0, green);
+            strip.setPixelColor(1, green);
+            strip.setPixelColor(2, green);
+            Particle.publish("WFarm_Temperature", "green");
+        }
+        else if (WFarm_Temperature > 5.1 && WFarm_Temperature < 6.8 && WFarm_Temperature = 6.8)
+        {
+            strip.setPixelColor(0, green);
+            strip.setPixelColor(1, green);
+            Particle.publish("WFarm_Temperature", "green");
+        }
+        else if (WFarm_Temperature > 6.8)
+        {
+            strip.setPixelColor(0, green);
+            Particle.publish("WFarm_Temperature", "green");
         }
     }
    
